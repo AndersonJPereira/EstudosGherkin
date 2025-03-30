@@ -8,7 +8,7 @@
    },
    { 
 	 "status":"invalid",
-	 "username":"error",
+	 "username":"AAA",
 	 "password":"error!",
 	 "message":"Your username is invalid!"
     }
