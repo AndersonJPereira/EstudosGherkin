@@ -9,7 +9,7 @@
    { 
 	 "status":"invalid",
 	 "username":"AAA",
-	 "password":"error!",
+	 "password":"erraor!",
 	 "message":"Your username is invalid!"
     }
  ]
