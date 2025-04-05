@@ -49,11 +49,7 @@ jobs:
             echo "🔁 Retry tentativa $TRY..."
             cp "$FAILED_FILE" "$RETRY_FAILED"
 
-            mvn test -Dcucumber.features=@$RETRY_FAILED \
-              -Dtest=TestRerunner \
-              -Dcucumber.plugin="html:$HTML_FILE" \
-              -Dcucumber.plugin="json:$JSON_FILE" \
-              -Dcucumber.plugin="rerun:$FAILED_FILE" || true
+            mvn test -Dcucumber.features=@$RETRY_FAILED -Dtest=TestRerunner -Dcucumber.plugin="pretty,html:$HTML_FILE,json:$JSON_FILE",rerun:$FAILED_FILE" || true
 
             sleep 5
 
