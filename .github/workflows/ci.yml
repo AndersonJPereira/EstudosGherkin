@@ -40,7 +40,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: 🚀 Execução principal dos testes
-        run: mvn clean test
+        run: mvn clean test || true
 
       - name: 🔁 Reexecutar cenários falhados até 3x
         run: |
@@ -59,7 +59,7 @@ jobs:
             # Executa o rerun baseado na cópia
             mvn test -Dcucumber.features=@target/failed_scenarios.txt \
               -Dcucumber.plugin="json:target/rerun-report-${TRY}.json" \
-              -Dcucumber.plugin="rerun:$FAILED_FILE"
+              -Dcucumber.plugin="rerun:$FAILED_FILE" || true
 
             RETRIES=$TRY
           done
