@@ -57,7 +57,7 @@ jobs:
         run: mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator"
 
       - name: 📁 Publicar relatórios como artefato
-        uses: actions/upload-artifact@v2.3.1
+        uses: actions/upload-artifact@main
         with:
           name: relatorios-testes
           path: |
