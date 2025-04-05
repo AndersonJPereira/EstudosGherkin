@@ -64,6 +64,7 @@ jobs:
               -Dcucumber.plugin="rerun:$FAILED_FILE" || true
 
             echo "📥 Fazendo merge incremental com $JSON_FILE"
+            sleep 5
             mvn test-compile exec:java \
               -Dexec.mainClass="utils.ReportGenerator" \
               -Dexec.args="$JSON_FILE"
