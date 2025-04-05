@@ -74,5 +74,5 @@ jobs:
             target/cucumber-report.html
 	    target/rerun-report-*.html
             target/cucumber-report.json
-            target/rerun-report-*.json
+	    target/rerun-report-*.json
             target/merged-report.json
