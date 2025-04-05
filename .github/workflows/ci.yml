@@ -4,6 +4,15 @@ on:
   push:
     branches: [ main, development ]
   workflow_dispatch: # ✅ Permite rodar manualmente pelo botão no GitHub
+    inputs:
+      branch:
+        description: 'Branch para executar os testes'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - development	
 
 jobs:
   run-tests:
