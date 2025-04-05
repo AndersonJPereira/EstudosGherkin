@@ -87,7 +87,7 @@ jobs:
           name: relatorios-testes
           path: ./public
  
-	- name: 📝 Criar index.html apontando para overview-features.html
+      - name: 📝 Criar index.html apontando para overview-features.html
         run: cp ./public/aggregate-report/cucumber-html-reports/overview-features.html ./public/aggregate-report/cucumber-html-reports/index.html
 
       - name: 🚀 Publicar no GitHub Pages (branch gh-pages)
