@@ -66,6 +66,7 @@ jobs:
         run: mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator"
 
       - name: 📁 Publicar relatórios como artefato
+<<<<<<< HEAD
        uses: actions/upload-artifact@main
        with:
          name: relatorios-testes
@@ -76,3 +77,15 @@ jobs:
            target/cucumber-report.json
            target/rerun-report-*.json
            target/merged-report.json
+=======
+        uses: actions/upload-artifact@main
+        with:
+          name: relatorios-testes
+          path: |
+            target/aggregate-report
+            target/cucumber-report.html
+	    target/rerun-report-*.html
+            target/cucumber-report.json
+	    target/rerun-report-*.json
+            target/merged-report.json
+>>>>>>> fbfa2d092537e4087a93625e3548dc0aca28c0e3
