@@ -58,7 +58,8 @@ jobs:
 
             # Executa o rerun baseado na cópia
             mvn test -Dcucumber.features=@target/failed_scenarios.txt \
-              -Dcucumber.plugin="json:target/rerun-report-${TRY}.json" \
+              -Dcucumber.plugin="html:target/rerun-report-${TRY}.html" \
+	      -Dcucumber.plugin="json:target/rerun-report-${TRY}.json" \
               -Dcucumber.plugin="rerun:$FAILED_FILE" || true
 
             RETRIES=$TRY
@@ -78,3 +79,4 @@ jobs:
             target/cucumber-report.json
             target/rerun-report-*.json
             target/merged-report.json
+            target/failed_scenarios-*.txt
