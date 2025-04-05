@@ -1,0 +1,5 @@
+stepdefinitions\AlterLoginStepDefinition.class
+runner\TestRerunner.class
+stepdefinitions\CommonStepDefinition.class
+runner\TestRunner.class
+stepdefinitions\LoginStepDefinition.class
