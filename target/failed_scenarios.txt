@@ -1,2 +1,0 @@
-file:src/test/resources/features/AlterLogin.feature:15
-file:src/test/resources/features/Login.feature:12
