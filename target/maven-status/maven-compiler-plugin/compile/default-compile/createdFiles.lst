@@ -1,8 +1,0 @@
-pages\BasePage.class
-utils\ReportGenerator.class
-classes\LoginData.class
-pages\LoginPage.class
-utils\JsonUtils.class
-classes\LoginData$User.class
-utils\ConfigReader.class
-utils\DriverManager.class
