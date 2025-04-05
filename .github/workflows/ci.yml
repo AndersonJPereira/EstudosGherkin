@@ -58,15 +58,13 @@ jobs:
 
             # Executa o rerun baseado na cópia
             mvn test -Dcucumber.features=@target/failed_scenarios.txt \
-              -Dcucumber.plugin="html:target/rerun-report-${TRY}.html" \
-	      -Dcucumber.plugin="json:target/rerun-report-${TRY}.json" \
-              -Dcucumber.plugin="rerun:$FAILED_FILE" || true
+              -Dcucumber.plugin="html:target/rerun-report-${TRY}.html,json:target/rerun-report-${TRY}.json,rerun:$FAILED_FILE" || true
 
             RETRIES=$TRY
           done
 
       - name: 📊 Gerar relatório consolidado (merged-report)
-        run: mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator"
+        run: mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" || true
 
       - name: 📁 Publicar relatórios como artefato
         uses: actions/upload-artifact@main
