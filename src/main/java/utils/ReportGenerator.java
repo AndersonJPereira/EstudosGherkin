@@ -1,19 +1,22 @@
 package utils;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.masterthought.cucumber.Configuration;
-import net.masterthought.cucumber.ReportBuilder;
-
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.masterthought.cucumber.Configuration;
+import net.masterthought.cucumber.ReportBuilder;
 
 public class ReportGenerator {
 
     public static void main(String[] args) throws IOException {
-       /* if (args.length != 1) {
+        if (args.length != 1) {
             System.out.println("Informe o caminho do novo arquivo JSON de rerun.");
             return;
         }
@@ -24,10 +27,10 @@ public class ReportGenerator {
             return;
         }
 
-        ObjectMapper mapper = new ObjectMapper();*/
-        File mergedFile = new File(args[0]);
+        ObjectMapper mapper = new ObjectMapper();
+        File mergedFile = new File("target/merged-report.json");
 
-        /*List<Map<String, Object>> previousReport = mergedFile.exists()
+        List<Map<String, Object>> previousReport = mergedFile.exists()
         	    ? mapper.readValue(mergedFile, new TypeReference<List<Map<String, Object>>>() {})
         	    : new ArrayList<>();
 
@@ -59,7 +62,7 @@ public class ReportGenerator {
         }
 
         mapper.writerWithDefaultPrettyPrinter().writeValue(mergedFile, mergedResult);
-        System.out.println("\u2714\ufe0f Merge incremental realizado com sucesso!");*/
+        System.out.println("\u2714\ufe0f Merge incremental realizado com sucesso!");
 
         // Gerar aggregate
         File reportOutputDirectory = new File("target/aggregate-report");
