@@ -38,7 +38,7 @@ jobs:
             -Dcucumber.plugin="rerun:target/failed_scenarios.txt" || true
 
           mvn test-compile exec:java \
-            -Dexec.mainClass="utils.IncrementalReportMerger" \
+            -Dexec.mainClass="utils.ReportGenerator" \
             -Dexec.args="target/cucumber-report.json"
 
       - name: 🔁 Reexecutar cenários falhados até 3x (com espera e merge incremental)
@@ -72,7 +72,7 @@ jobs:
             if [ -f "$JSON_FILE" ]; then
               echo "📥 Fazendo merge incremental com $JSON_FILE"
               mvn test-compile exec:java \
-                -Dexec.mainClass="utils.IncrementalReportMerger" \
+                -Dexec.mainClass="utils.ReportGenerator" \
                 -Dexec.args="$JSON_FILE"
             else
               echo "⚠️ Arquivo $JSON_FILE não encontrado após $ATTEMPTS tentativas. Pulando merge."
