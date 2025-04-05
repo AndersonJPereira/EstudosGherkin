@@ -1,4 +1,4 @@
-@Login, @Full
+@Login @Full
 Feature: Login
 
 	@SuccessfulLogin
