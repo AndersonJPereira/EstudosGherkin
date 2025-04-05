@@ -36,40 +36,6 @@ jobs:
 
           mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" -Dexec.args="target/cucumber-report.json"
 
-      - name: 🔁 Reexecutar cenários falhados até 3x (com espera e merge incremental)
-        run: |
-          RETRIES=0
-          FAILED_FILE="target/failed_scenarios.txt"
-
-          while [ $RETRIES -lt 3 ] && [ -s "$FAILED_FILE" ]; do
-            TRY=$((RETRIES+1))
-            RETRY_FILE="target/failed_scenarios-${TRY}.txt"
-            HTML_FILE="target/rerun-report-${TRY}.html"
-            JSON_FILE="target/rerun-report-${TRY}.json"
-
-            echo "▶️ Retry tentativa $TRY..."
-
-            cp "$FAILED_FILE" "$RETRY_FILE"
-
-            mvn test -Dcucumber.features=@$RETRY_FILE -Dcucumber.plugin="html:$HTML_FILE,json:$JSON_FILE,rerun:$FAILED_FILE" || true
-
-            echo "📥 Aguardando geração de $JSON_FILE..."
-            ATTEMPTS=0
-            while [ ! -f "$JSON_FILE" ] && [ $ATTEMPTS -lt 5 ]; do
-              sleep 10
-              ATTEMPTS=$((ATTEMPTS+1))
-            done
-
-            if [ -f "$JSON_FILE" ]; then
-              echo "📥 Fazendo merge incremental com $JSON_FILE"
-              mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" -Dexec.args="$JSON_FILE"
-            else
-              echo "⚠️ Arquivo $JSON_FILE não encontrado após $ATTEMPTS tentativas. Pulando merge."
-            fi
-
-            RETRIES=$TRY
-          done
-
       - name: 📁 Publicar relatórios como artefato
         uses: actions/upload-artifact@main
         with:
@@ -77,8 +43,4 @@ jobs:
           path: |
             target/aggregate-report
             target/cucumber-report.html
-            target/rerun-report-*.html
             target/cucumber-report.json
-            target/rerun-report-*.json
-            target/merged-report.json
-            target/failed_scenarios-*.txt
