@@ -32,14 +32,9 @@ jobs:
 
       - name: 🚀 Execução principal dos testes
         run: |
-          mvn clean test \
-            -Dcucumber.plugin="html:target/cucumber-report.html" \
-            -Dcucumber.plugin="json:target/cucumber-report.json" \
-            -Dcucumber.plugin="rerun:target/failed_scenarios.txt" || true
+          mvn clean test -Dcucumber.plugin="html:target/cucumber-report.html","json:target/cucumber-report.json","rerun:target/failed_scenarios.txt" || true
 
-          mvn test-compile exec:java \
-            -Dexec.mainClass="utils.ReportGenerator" \
-            -Dexec.args="target/cucumber-report.json"
+          mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" -Dexec.args="target/cucumber-report.json"
 
       - name: 🔁 Reexecutar cenários falhados até 3x (com espera e merge incremental)
         run: |
@@ -67,9 +62,7 @@ jobs:
 
             if [ -f "$JSON_FILE" ]; then
               echo "📥 Fazendo merge incremental com $JSON_FILE"
-              mvn test-compile exec:java \
-                -Dexec.mainClass="utils.ReportGenerator" \
-                -Dexec.args="$JSON_FILE"
+              mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" -Dexec.args="$JSON_FILE"
             else
               echo "⚠️ Arquivo $JSON_FILE não encontrado após $ATTEMPTS tentativas. Pulando merge."
             fi
