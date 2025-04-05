@@ -6,6 +6,8 @@ import java.util.*;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.masterthought.cucumber.Configuration;
+import net.masterthought.cucumber.ReportBuilder;
 
 public class ReportGenerator {
 
@@ -73,8 +75,23 @@ public class ReportGenerator {
             elements.add(scenario);
         }
 
+        // Salvar JSON final
         mapper.writerWithDefaultPrettyPrinter().writeValue(mergedFile, new ArrayList<>(featureMap.values()));
         System.out.println("✔️ Merge incremental realizado com sucesso!");
+
+        // 🔥 Gerar o relatório aggregate HTML
+        File reportOutputDirectory = new File("target/aggregate-report");
+        List<String> jsonFiles = List.of(mergedFile.getAbsolutePath());
+
+        Configuration config = new Configuration(reportOutputDirectory, "Estudos-Gherkin");
+        config.setBuildNumber("1.0");
+        config.addClassifications("Projeto", "Estudos-Gherkin");
+        config.addClassifications("Ambiente", "Local");
+
+        ReportBuilder reportBuilder = new ReportBuilder(jsonFiles, config);
+        reportBuilder.generateReports();
+
+        System.out.println("📊 Relatório agregado com merge gerado com sucesso!");
     }
 
     private static String getScenarioKey(String uri, Map<String, Object> scenario) {
