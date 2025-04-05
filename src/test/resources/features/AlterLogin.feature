@@ -1,4 +1,4 @@
-@AlterLogin, @Full
+@AlterLogin @Full
 Feature: AlterLogin
 
 
