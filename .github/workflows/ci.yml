@@ -90,12 +90,17 @@ jobs:
       - name: 📝 Criar index.html apontando para overview-features.html
         run: cp ./public/aggregate-report/cucumber-html-reports/overview-features.html ./public/aggregate-report/cucumber-html-reports/index.html
 
+      - name: 📁 Mover os relatórios para a pasta da branch
+        run: |
+          mkdir -p ./to-publish/${{ github.ref_name }}
+          mv ./public/aggregate-report/cucumber-html-reports/* ./to-publish/${{ github.ref_name }}/
+
       - name: 🚀 Publicar no GitHub Pages (branch gh-pages)
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           destination_dir: ${{ github.ref_name }}
-          publish_dir: ./public/aggregate-report/cucumber-html-reports
+          publish_dir: ./to-publish
 
      
