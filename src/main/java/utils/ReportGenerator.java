@@ -1,137 +1,117 @@
 package utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import net.masterthought.cucumber.Configuration;
 import net.masterthought.cucumber.ReportBuilder;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
 public class ReportGenerator {
-	
-	public static void main(String[] args) throws IOException {
-	    File reportOutputDirectory = new File("target/aggregate-report");
 
-	    ObjectMapper mapper = new ObjectMapper();
-	    File cucumberJson = new File("target/cucumber-report.json");
+    public static void main(String[] args) throws IOException {
+        if (args.length != 1) {
+            System.out.println("❌ Informe o caminho do novo arquivo JSON de rerun.");
+            return;
+        }
 
-	    // 🔎 Pega todos os rerun-report-*.json
-	    List<File> rerunJsons = Files.list(Paths.get("target"))
-	            .filter(p -> p.getFileName().toString().startsWith("rerun-report-") && p.toString().endsWith(".json"))
-	            .map(Path::toFile)
-	            .collect(Collectors.toList());
+        File newReportFile = new File(args[0]);
+        if (!newReportFile.exists()) {
+            System.out.println("❌ Arquivo JSON não encontrado: " + args[0]);
+            return;
+        }
 
-	    if (!cucumberJson.exists() && rerunJsons.isEmpty()) {
-	        System.out.println("Nenhum arquivo JSON encontrado.");
-	        return;
-	    }
+        ObjectMapper mapper = new ObjectMapper();
+        File mergedFile = new File("target/merged-report.json");
 
-	    // Carrega JSON principal
-	    List<Map<String, Object>> mainReport = cucumberJson.exists()
-	            ? mapper.readValue(cucumberJson, new TypeReference<List<Map<String, Object>>>() {})
-	            : new ArrayList<>();
+       // Carrega o merged atual (se existir)
+        List<Map<String, Object>> previousReport = mergedFile.exists()
+            ? mapper.readValue(mergedFile, new TypeReference<List<Map<String, Object>>>() {})
+            : new ArrayList<>();
 
-	    // Carrega todos os reruns
-	    List<Map<String, Object>> allRerunScenarios = new ArrayList<>();
-	    for (File rerunJson : rerunJsons) {
-	    	List<Map<String, Object>> parsed = mapper.readValue(rerunJson, new TypeReference<List<Map<String, Object>>>() {});
-	        allRerunScenarios.addAll(parsed);
-	    }
+        // Carrega o novo rerun
+        List<Map<String, Object>> newReport = mapper.readValue(
+            newReportFile, new TypeReference<List<Map<String, Object>>>() {}
+        );
 
-	    // Mapear cenários por chave única (uri + linha)
-	    Map<String, Map<String, Object>> scenarioMap = new LinkedHashMap<>();
+        // Indexar todos os cenários por uri:line
+        Map<String, Map<String, Object>> scenarioMap = new LinkedHashMap<>();
+        insertScenarios(previousReport, scenarioMap);
+        insertScenarios(newReport, scenarioMap); // sobrescreve se mesmo cenário
 
-	    for (Map<String, Object> feature : mainReport) {
-	        String uri = (String) feature.get("uri");
-	        List<Map<String, Object>> elements = (List<Map<String, Object>>) feature.get("elements");
-	        if (elements == null) continue;
+        // Agrupar por feature (uri)
+        Map<String, List<Map<String, Object>>> groupedByFeature = new LinkedHashMap<>();
+        for (Map<String, Object> entry : scenarioMap.values()) {
+            String uri = (String) entry.get("uri");
+            Map<String, Object> scenario = (Map<String, Object>) entry.get("scenario");
 
-	        for (Map<String, Object> scenario : elements) {
-	            String key = getScenarioKey(uri, scenario);
-	            scenarioMap.put(key, Map.of("uri", uri, "scenario", scenario));
-	        }
-	    }
+            groupedByFeature.computeIfAbsent(uri, k -> new ArrayList<>()).add(scenario);
+        }
 
-	    for (Map<String, Object> feature : allRerunScenarios) {
-	        String uri = (String) feature.get("uri");
-	        List<Map<String, Object>> elements = (List<Map<String, Object>>) feature.get("elements");
-	        if (elements == null) continue;
+        // Criar lista final com as features completas (preservando os campos como name)
+        List<Map<String, Object>> mergedResult = new ArrayList<>();
+        for (Map.Entry<String, List<Map<String, Object>>> entry : groupedByFeature.entrySet()) {
+            String uri = entry.getKey();
+            List<Map<String, Object>> scenarios = entry.getValue();
 
-	        for (Map<String, Object> scenario : elements) {
-	            scenario.put("rerun", true); // Marcador
-	            String key = getScenarioKey(uri, scenario);
-	            scenarioMap.put(key, Map.of("uri", uri, "scenario", scenario)); // sobrescreve
-	        }
-	    }
+            Map<String, Object> sourceFeature = findFeatureByUri(uri, newReport, previousReport);
 
-	    // Agrupar novamente os cenários por feature
-	    Map<String, Map<String, Object>> featureMap = new LinkedHashMap<>();
+            Map<String, Object> finalFeature = new LinkedHashMap<>();
+            finalFeature.putAll(sourceFeature); // preserva name, tags, etc.
+            finalFeature.put("elements", scenarios); // atualiza apenas os cenários
 
-	    for (Map<String, Object> entry : scenarioMap.values()) {
-	        String uri = (String) entry.get("uri");
-	        Map<String, Object> scenario = (Map<String, Object>) entry.get("scenario");
+            mergedResult.add(finalFeature);
+        }
 
-	        // Marca como reexecutado
-	        if (scenario.containsKey("rerun") && Boolean.TRUE.equals(scenario.get("rerun"))) {
-	            String originalName = (String) scenario.get("name");
-	            scenario.put("name", originalName + " (REEXECUTADO)");
-	        }
+        // Salva JSON consolidado
+        mapper.writerWithDefaultPrettyPrinter().writeValue(mergedFile, mergedResult);
+        System.out.println("✅ Merge incremental realizado com sucesso!");
 
-	        featureMap.computeIfAbsent(uri, k -> {
-	            Optional<Map<String, Object>> originalFeature =
-	                    Stream.concat(mainReport.stream(), allRerunScenarios.stream())
-	                            .filter(f -> uri.equals(f.get("uri")))
-	                            .findFirst();
+        // Gerar relatório agregado
+        File reportOutputDirectory = new File("target/aggregate-report");
+        Configuration config = new Configuration(reportOutputDirectory, "Estudos-Gherkin");
+        config.setBuildNumber("1.0");
+        config.addClassifications("Projeto", "Estudos-Gherkin");
+        config.addClassifications("Ambiente", "Local");
 
-	            if (originalFeature.isPresent()) {
-	                Map<String, Object> copy = new LinkedHashMap<>(originalFeature.get());
-	                copy.put("elements", new ArrayList<Map<String, Object>>());
-	                return copy;
-	            }
+        ReportBuilder reportBuilder = new ReportBuilder(List.of(mergedFile.getAbsolutePath()), config);
+        reportBuilder.generateReports();
 
-	            Map<String, Object> fallback = new LinkedHashMap<>();
-	            fallback.put("uri", k);
-	            fallback.put("elements", new ArrayList<Map<String, Object>>());
-	            return fallback;
-	        });
+        System.out.println("📊 Relatório agregado com merge gerado com sucesso!");
+    }
 
-	        List<Map<String, Object>> elements = (List<Map<String, Object>>) featureMap.get(uri).get("elements");
-	        elements.add(scenario);
-	    }
+    private static void insertScenarios(List<Map<String, Object>> report,
+                                        Map<String, Map<String, Object>> scenarioMap) {
+        for (Map<String, Object> feature : report) {
+            String uri = (String) feature.get("uri");
+            List<Map<String, Object>> elements = (List<Map<String, Object>>) feature.get("elements");
+            if (elements == null) continue;
+            for (Map<String, Object> scenario : elements) {
+                String key = getScenarioKey(uri, scenario);
+                scenarioMap.put(key, Map.of("uri", uri, "scenario", scenario));
+            }
+        }
+    }
 
-	    // Salvar JSON final
-	    File mergedJson = new File("target/merged-report.json");
-	    mapper.writerWithDefaultPrettyPrinter().writeValue(mergedJson, new ArrayList<>(featureMap.values()));
+    private static String getScenarioKey(String uri, Map<String, Object> scenario) {
+        return uri + ":" + scenario.get("line");
+    }
 
-	    // Gerar relatório com merged
-	    List<String> jsonFiles = List.of(mergedJson.getAbsolutePath());
-
-	    Configuration config = new Configuration(reportOutputDirectory, "Estudos-Gherkin");
-	    config.setBuildNumber("1.0");
-	    config.addClassifications("Projeto", "Estudos-Gherkin");
-	    config.addClassifications("Ambiente", "Local");
-
-	    ReportBuilder reportBuilder = new ReportBuilder(jsonFiles, config);
-	    reportBuilder.generateReports();
-
-	    System.out.println("Relatório agregado com merge gerado com sucesso!");
-	}
-
-	// 👇 Método auxiliar
-	private static String getScenarioKey(String uri, Map<String, Object> scenario) {
-	    return uri + ":" + scenario.get("line");
-	}
-
+    private static Map<String, Object> findFeatureByUri(String uri, List<Map<String, Object>>... reports) {
+        for (List<Map<String, Object>> report : reports) {
+            for (Map<String, Object> feature : report) {
+                if (uri.equals(feature.get("uri"))) {
+                    return feature;
+                }
+            }
+        }
+        // fallback vazio, mas evita null pointer
+        Map<String, Object> fallback = new LinkedHashMap<>();
+        fallback.put("uri", uri);
+        fallback.put("name", "Unknown Feature");
+        fallback.put("elements", new ArrayList<>());
+        return fallback;
+    }
 }
