@@ -32,7 +32,7 @@ jobs:
 
       - name: 🚀 Execução principal dos testes
         run: |
-          mvn clean test -Dcucumber.plugin="pretty,html:target/cucumber-report.html,json:target/cucumber-report.json,rerun:target/failed_scenarios.txt" || true
+          mvn clean test -Dcucumber.plugin="pretty","html:target/cucumber-report.html","json:target/cucumber-report.json","rerun:target/failed_scenarios.txt" || true
 
           mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" -Dexec.args="target/cucumber-report.json"
 
