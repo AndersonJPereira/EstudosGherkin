@@ -3,8 +3,7 @@ name: CI - Testes Automatizados com Retry e Aggregate Report
 on:
   push:
     branches: [ main, development ]
-  pull_request:
-    branches: [ main, development ]
+  workflow_dispatch: # ✅ Permite rodar manualmente pelo botão no GitHub
 
 jobs:
   run-tests:
