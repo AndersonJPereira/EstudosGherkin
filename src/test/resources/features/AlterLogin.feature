@@ -8,7 +8,7 @@ Feature: AlterLogin
     When I use "<status>" credentials
     Then the login result is "<result>"
 
-    Examples: 
+    Examples:
       | status  | result  |
       | valid   | success |
       | invalid | fail    |
