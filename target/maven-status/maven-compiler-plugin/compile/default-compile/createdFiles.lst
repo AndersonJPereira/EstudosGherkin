@@ -1,7 +1,0 @@
-pages\BasePage.class
-classes\LoginData.class
-classes\LoginData$Credentials.class
-pages\LoginPage.class
-utils\JsonUtils.class
-utils\ConfigReader.class
-utils\DriverManager.class

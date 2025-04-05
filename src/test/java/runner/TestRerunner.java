@@ -7,11 +7,11 @@ import io.cucumber.junit.CucumberOptions;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-   features = "src/test/resources/features",
+   features = "@target/failed_scenarios.txt",
    glue = "stepdefinitions",
-   plugin = {"pretty", "html:target/cucumber-report.html","json:target/cucumber-report.json","rerun:target/failed_scenarios.txt"},
+   plugin = {"pretty", "html:target/rerun-report.html", "json:target/rerun-report.json"},
    monochrome = true
 )
-public class TestRunner {
+public class TestRerunner {
 
 }

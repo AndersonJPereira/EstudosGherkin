@@ -21,6 +21,10 @@ public class LoginPage extends BasePage {
     public void fillCredentials(String usernameValue, String passwordValue) {
     	sendKeys(username, usernameValue);
     	sendKeys(password, passwordValue);
+    	
+    }
+    
+    public void clickLoginButton() {
     	click (button);
     }
 

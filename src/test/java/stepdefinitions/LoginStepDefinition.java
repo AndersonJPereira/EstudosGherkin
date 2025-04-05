@@ -26,6 +26,12 @@ public class LoginStepDefinition {
 		loginPage.fillCredentials(user.username, user.password);
 	}
 	
+	@When("I click login")
+	public void i_cick_login() {
+		loginPage.clickLoginButton();
+	}
+
+	
 	@Then("the login is successful")
 	public void the_login_is_successful() {
 	  Assert.assertTrue(loginPage.getLoginMessage().contains(user.message));
