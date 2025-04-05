@@ -81,7 +81,7 @@ jobs:
           done
 
       - name: 📁 Publicar relatórios como artefato
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@main
         with:
           name: relatorios-testes
           path: |
