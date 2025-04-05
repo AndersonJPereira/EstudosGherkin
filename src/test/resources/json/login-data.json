@@ -10,7 +10,7 @@
 	 "status":"invalid",
 	 "username":"AAABC",
 	 "password":"erraor!",
-	 "message":"Your username is invali!"
+	 "message":"Your username is invalid!"
     }
  ]
 }
