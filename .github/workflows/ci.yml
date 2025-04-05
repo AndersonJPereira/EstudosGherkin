@@ -40,9 +40,18 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: 🚀 Execução principal dos testes
-        run: mvn clean test || true
+        run: |
+          mvn clean test \
+            -Dcucumber.plugin="html:target/cucumber-report.html" \
+            -Dcucumber.plugin="json:target/cucumber-report.json" \
+            -Dcucumber.plugin="rerun:target/failed_scenarios.txt" || true
 
-      - name: 🔁 Reexecutar cenários falhados até 3x
+          # Gera primeiro merge (baseado no report principal)
+          mvn test-compile exec:java \
+            -Dexec.mainClass="utils.IncrementalReportMerger" \
+            -Dexec.args="target/cucumber-report.json"
+
+      - name: 🔁 Reexecutar cenários falhados até 3x com merge incremental
         run: |
           RETRIES=0
           FAILED_FILE="target/failed_scenarios.txt"
@@ -50,24 +59,29 @@ jobs:
           while [ $RETRIES -lt 3 ] && [ -s "$FAILED_FILE" ]; do
             TRY=$((RETRIES+1))
             RETRY_FAILED="target/failed_scenarios-${TRY}.txt"
+            JSON_FILE="target/rerun-report-${TRY}.json"
+            HTML_FILE="target/rerun-report-${TRY}.html"
 
             echo "▶️ Retry tentativa $TRY..."
 
-            # Salva uma cópia do arquivo de falhas atual
             cp "$FAILED_FILE" "$RETRY_FAILED"
 
-            # Executa o rerun baseado na cópia
-            mvn test -Dcucumber.features=@target/failed_scenarios.txt \
-              -Dcucumber.plugin="html:target/rerun-report-${TRY}.html,json:target/rerun-report-${TRY}.json,rerun:$FAILED_FILE" || true
+            mvn test \
+              -Dcucumber.features=@$FAILED_FILE \
+              -Dcucumber.plugin="html:$HTML_FILE" \
+              -Dcucumber.plugin="json:$JSON_FILE" \
+              -Dcucumber.plugin="rerun:$FAILED_FILE" || true
+
+            echo "📥 Fazendo merge incremental com $JSON_FILE"
+            mvn test-compile exec:java \
+              -Dexec.mainClass="utils.ReportGenerator" \
+              -Dexec.args="$JSON_FILE"
 
             RETRIES=$TRY
           done
 
-      - name: 📊 Gerar relatório consolidado (merged-report)
-        run: mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator" || true
-
       - name: 📁 Publicar relatórios como artefato
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@v3
         with:
           name: relatorios-testes
           path: |
