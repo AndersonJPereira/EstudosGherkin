@@ -56,11 +56,7 @@ jobs:
 
             cp "$FAILED_FILE" "$RETRY_FILE"
 
-            mvn test \
-              -Dcucumber.features=@$RETRY_FILE \
-              -Dcucumber.plugin="html:$HTML_FILE" \
-              -Dcucumber.plugin="json:$JSON_FILE" \
-              -Dcucumber.plugin="rerun:$FAILED_FILE" || true
+            mvn test -Dcucumber.features=@$RETRY_FILE -Dcucumber.plugin="html:$HTML_FILE,json:$JSON_FILE,rerun:$FAILED_FILE" || true
 
             echo "📥 Aguardando geração de $JSON_FILE..."
             ATTEMPTS=0
