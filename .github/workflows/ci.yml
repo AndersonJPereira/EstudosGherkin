@@ -48,7 +48,7 @@ jobs:
 
           # Gera primeiro merge (baseado no report principal)
           mvn test-compile exec:java \
-            -Dexec.mainClass="utils.IncrementalReportMerger" \
+            -Dexec.mainClass="utils.ReportGenerator" \
             -Dexec.args="target/cucumber-report.json"
 
       - name: 🔁 Reexecutar cenários falhados até 3x com merge incremental
