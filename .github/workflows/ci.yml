@@ -4,15 +4,6 @@ on:
   push:
     branches: [ main, development ]
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch para executar os testes'
-        required: true
-        default: 'main'
-        type: choice
-        options:
-          - main
-          - development
 
 jobs:
   run-tests:
@@ -58,7 +49,7 @@ jobs:
 
           while [ $RETRIES -lt 3 ] && [ -s "$FAILED_FILE" ]; do
             TRY=$((RETRIES+1))
-            RETRY_FAILED="target/failed_scenarios-${TRY}.txt"
+            RETRY_FILE="target/failed_scenarios-${TRY}.txt"
             JSON_FILE="target/rerun-report-${TRY}.json"
             HTML_FILE="target/rerun-report-${TRY}.html"
 
@@ -67,7 +58,7 @@ jobs:
             cp "$FAILED_FILE" "$RETRY_FAILED"
 
             mvn test \
-              -Dcucumber.features=@$FAILED_FILE \
+              -Dcucumber.features=@$RETRY_FAILED \
               -Dcucumber.plugin="html:$HTML_FILE" \
               -Dcucumber.plugin="json:$JSON_FILE" \
               -Dcucumber.plugin="rerun:$FAILED_FILE" || true
