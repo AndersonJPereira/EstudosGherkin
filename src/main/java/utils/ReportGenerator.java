@@ -25,7 +25,7 @@ public class ReportGenerator {
         File rerunJson = new File("target/rerun-report.json");
 
         if (!cucumberJson.exists() && !rerunJson.exists()) {
-            System.out.println("❌ Nenhum arquivo JSON encontrado.");
+            System.out.println("Nenhum arquivo JSON encontrado.");
             return;
         }
 
@@ -114,7 +114,7 @@ public class ReportGenerator {
         ReportBuilder reportBuilder = new ReportBuilder(jsonFiles, config);
         reportBuilder.generateReports();
 
-        System.out.println("✅ Relatório agregado com merge gerado com sucesso!");
+        System.out.println("Relatorio agregado com merge gerado com sucesso!");
     }
 
     private static String getScenarioKey(String uri, Map<String, Object> scenario) {

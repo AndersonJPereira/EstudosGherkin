@@ -1,10 +1,10 @@
 package stepdefinitions;
 
-import classes.LoginData.User;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import junit.framework.Assert;
 import pages.LoginPage;
+import classes.LoginData.User;
 import utils.DriverManager;
 import utils.JsonUtils;
 
@@ -27,7 +27,7 @@ public class AlterLoginStepDefinition {
 
 	@Then("the login result is {string}")
 	public void the_login_result_is(String value) {
-
+		loginPage.clickLoginButton();
 		Assert.assertTrue(loginPage.getLoginMessage().contains(user.message));
 	}
 }

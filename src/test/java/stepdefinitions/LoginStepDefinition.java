@@ -25,20 +25,17 @@ public class LoginStepDefinition {
 		user= JsonUtils.buscarUsuarioPorStatus("invalid");
 		loginPage.fillCredentials(user.username, user.password);
 	}
-	
-	@When("I click login")
-	public void i_cick_login() {
-		loginPage.clickLoginButton();
-	}
 
 	
 	@Then("the login is successful")
 	public void the_login_is_successful() {
-	  Assert.assertTrue(loginPage.getLoginMessage().contains(user.message));
+		loginPage.clickLoginButton();
+		Assert.assertTrue(loginPage.getLoginMessage().contains(user.message));
 	}
 
 	@Then("an error message is shown")
 	public void an_error_message_is_shown() {
+		  loginPage.clickLoginButton();
 		  Assert.assertTrue(loginPage.getLoginMessage().contains(user.message));
 	}
 
