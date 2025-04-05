@@ -55,3 +55,11 @@ jobs:
 
       - name: 📊 Gerar relatório consolidado (merged-report)
         run: mvn test-compile exec:java -Dexec.mainClass="utils.ReportGenerator"
+
+      - name: 📁 Publicar relatórios como artefato
+        uses: actions/upload-artifact@v3
+        with:
+          name: relatorios-testes
+          path: |
+            target/aggregate-report
+            target/cucumber-report.html
